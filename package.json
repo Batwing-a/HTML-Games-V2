@@ -1,0 +1,13 @@
+{
+  "name": "html-games-v2",
+  "version": "1.0.0",
+  "description": "Collection of HTML games with local server support",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "express": "^4.18.2"
+  }
+}

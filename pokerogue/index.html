@@ -61,6 +61,34 @@ SPDX-License-Identifier: AGPL-3.0-only
       e.preventDefault();
     });
   </script>
+  <script>
+    // Override the API URL to point to local server
+    window.addEventListener('load', function() {
+      // Wait a bit for the module to load
+      setTimeout(function() {
+        // Try to find and override the API instance
+        if (window.PokerogueApi) {
+          window.PokerogueApi.prototype.baseUrl = 'http://localhost:8001';
+        }
+        // Also try to override any existing API instances
+        for (let key in window) {
+          if (window[key] && window[key].constructor && window[key].constructor.name === 'PokerogueApi') {
+            window[key].baseUrl = 'http://localhost:8001';
+          }
+        }
+      }, 100);
+    });
+  </script>
+  <script>
+    // Override the API URL to point to local server
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+      if (typeof url === 'string' && url.includes('api.pokerogue.net')) {
+        url = url.replace('https://api.pokerogue.net', 'http://localhost:8001');
+      }
+      return originalFetch.call(this, url, options);
+    };
+  </script>
   <script type="module" crossorigin src="./assets/index-B4Pqb5kv.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/touch-controls-CpopOMCc.js">
   <link rel="modulepreload" crossorigin href="./assets/RoundRectangle-DiYjtbD8.js">
