@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Collection of HTML games with local server support",
   "scripts": {
-    "start": "node server.js"
+    "start": "npx http-server -p 8080"
   },
   "dependencies": {},
   "devDependencies": {
