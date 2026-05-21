@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroArch Launcher</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, sans-serif;
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            color: #f9fafb;
+        }
+        .wrapper {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 30px 24px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 3vw, 3rem);
+        }
+        p {
+            margin: 12px auto 0;
+            max-width: 780px;
+            color: #d1d5db;
+            line-height: 1.7;
+        }
+        .panel {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+        }
+        .panel label,
+        .panel select,
+        .panel button {
+            display: block;
+            width: 100%;
+        }
+        .panel label {
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .panel select,
+        .panel button {
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .panel button:hover {
+            transform: translateY(-1px);
+            background: rgba(148, 163, 184, 0.12);
+        }
+        .status {
+            margin-top: 12px;
+            color: #cbd5e1;
+            min-height: 1.3em;
+        }
+        .note {
+            margin-top: 18px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        a.link-button {
+            display: inline-block;
+            text-decoration: none;
+            background: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 14px;
+            padding: 12px 16px;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>RetroArch Launcher</h1>
+            <p>Launch the existing WebRetro RetroArch port with ROMs indexed from <code>roms/roms.json</code>.</p>
+        </header>
+
+        <div class="panel">
+            <label for="romSelect">Choose a ROM</label>
+            <select id="romSelect">
+                <option value="">Loading ROMs…</option>
+            </select>
+
+            <button id="loadRomButton">Launch selected ROM in RetroArch</button>
+            <div class="status" id="status">Loading ROM index from <code>../roms/roms.json</code>.</div>
+            <p class="note">The launcher lists ROM names from <code>roms/roms.json</code>. Actual ROM binaries are loaded from <code>webretro/roms/</code> by the WebRetro emulator.</p>
+            <a class="link-button" href="../webretro/index.html?core=autodetect">Open WebRetro UI</a>
+        </div>
+    </div>
+
+    <script>
+        const romSelect = document.getElementById('romSelect');
+        const loadRomButton = document.getElementById('loadRomButton');
+        const status = document.getElementById('status');
+        const romListUrl = '../roms/roms.json';
+
+        async function loadRomList() {
+            try {
+                const response = await fetch(romListUrl);
+                if (!response.ok) throw new Error('Failed to load ROM list');
+                const roms = await response.json();
+
+                romSelect.innerHTML = '';
+                if (!Array.isArray(roms) || roms.length === 0) {
+                    romSelect.innerHTML = '<option value="">No ROMs available</option>';
+                    status.textContent = 'The ROM index is empty. Add file names to ../roms/roms.json.';
+                    return;
+                }
+
+                roms.forEach(rom => {
+                    const option = document.createElement('option');
+                    option.value = rom;
+                    option.textContent = rom;
+                    romSelect.appendChild(option);
+                });
+
+                status.textContent = `${roms.length} ROM(s) loaded from ../roms/`;
+            } catch (error) {
+                romSelect.innerHTML = '<option value="">Unable to load ROM list</option>';
+                status.textContent = 'Cannot load rom list. Create or update ../roms/roms.json.';
+                console.error(error);
+            }
+        }
+
+        function launchSelectedRom() {
+            const selectedRom = romSelect.value;
+            if (!selectedRom) {
+                status.textContent = 'Please choose a ROM from the list.';
+                return;
+            }
+
+            const romPath = `./roms/${encodeURIComponent(selectedRom)}`;
+            const url = `../webretro/index.html?core=autodetect&rom=${romPath}`;
+            window.location.href = url;
+        }
+
+        loadRomButton.addEventListener('click', launchSelectedRom);
+        loadRomList();
+    </script>
+</body>
+</html>

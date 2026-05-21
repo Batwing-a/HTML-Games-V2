@@ -756,7 +756,12 @@ function readyLaunchQueue() {
 
 // rom fetch
 function readyRomFetch() {
-	var romloc = (/^(https?:)?\/\//i).test(queries.rom) ? queries.rom : relativeBase + "roms/" + queries.rom;
+	var romloc;
+	if ((/^(https?:)?\/\//i).test(queries.rom) || queries.rom.indexOf("/") !== -1) {
+		romloc = queries.rom;
+	} else {
+		romloc = relativeBase + "roms/" + queries.rom;
+	}
 	var romFilename = queries.rom.split("/").slice(-1)[0];
 	grab(romloc, "arraybuffer", function(data) {
 		log("Succesfully fetched ROM from " + romloc);
